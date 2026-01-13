@@ -375,13 +375,111 @@
             transform: translateX(24px);
         }
 
+        /* Tablet (768px - 1024px) */
         @media (min-width: 768px) {
             .container {
-                max-width: 700px;
+                max-width: 800px;
             }
-            
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
             .subtitle-text {
                 font-size: 1.6em;
+            }
+
+            .card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .card-title {
+                font-size: 1em;
+            }
+
+            .lang-label {
+                min-width: 100px;
+                font-size: 0.9em;
+            }
+
+            select {
+                font-size: 1em;
+            }
+
+            .btn {
+                font-size: 1.05em;
+                padding: 18px 24px;
+            }
+
+            .transcript-box {
+                max-height: 300px;
+                font-size: 0.95em;
+            }
+        }
+
+        /* Desktop/PC (1025px+) */
+        @media (min-width: 1025px) {
+            .container {
+                max-width: 1000px;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .subtitle-text {
+                font-size: 1.8em;
+            }
+
+            .card {
+                padding: 25px;
+                margin-bottom: 20px;
+            }
+
+            .btn-group {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .btn-primary,
+            .btn-stop {
+                grid-column: span 2;
+            }
+
+            .video-wrapper {
+                min-height: 300px;
+            }
+
+            .transcript-box {
+                max-height: 400px;
+                font-size: 1em;
+            }
+
+            .lang-settings {
+                flex-direction: row;
+            }
+
+            .lang-row {
+                flex: 1;
+            }
+        }
+
+        /* Large Desktop (1440px+) */
+        @media (min-width: 1440px) {
+            .container {
+                max-width: 1200px;
+            }
+
+            .subtitle-text {
+                font-size: 2em;
+            }
+
+            .video-wrapper {
+                min-height: 400px;
             }
         }
     </style>
@@ -410,6 +508,9 @@
                         <option value="de-DE">🇩🇪 Deutsch</option>
                         <option value="fr-FR">🇫🇷 Français</option>
                         <option value="es-ES">🇪🇸 Español</option>
+                        <option value="ms-MY">🇲🇾 Bahasa Melayu</option>
+                        <option value="id-ID">🇮🇩 Bahasa Indonesia</option>
+                        <option value="nl-NL">🇳🇱 Nederlands</option>
                     </select>
                 </div>
                 <div class="lang-row">
@@ -422,6 +523,9 @@
                         <option value="de">🇩🇪 Deutsch</option>
                         <option value="fr">🇫🇷 Français</option>
                         <option value="es">🇪🇸 Español</option>
+                        <option value="ms">🇲🇾 Bahasa Melayu</option>
+                        <option value="id">🇮🇩 Bahasa Indonesia</option>
+                        <option value="nl">🇳🇱 Nederlands</option>
                     </select>
                 </div>
                 <div class="camera-toggle">
@@ -552,10 +656,13 @@
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
+            recognition.maxAlternatives = 3;
             recognition.lang = document.getElementById('recognitionLang').value;
 
             recognition.onstart = () => {
                 isRecognizing = true;
+                // Save that microphone permission was granted
+                localStorage.setItem('micPermissionGranted', 'true');
                 document.getElementById('statusDot').classList.add('active');
                 document.getElementById('statusText').textContent = 'Listening...';
                 document.getElementById('startBtn').style.display = 'none';
@@ -580,7 +687,11 @@
             recognition.onerror = (event) => {
                 console.error('Recognition error:', event.error);
                 if (event.error === 'not-allowed') {
-                    showToast('Microphone permission required');
+                    // Only show message if permission was never granted before
+                    const wasGrantedBefore = localStorage.getItem('micPermissionGranted');
+                    if (!wasGrantedBefore) {
+                        showToast('Microphone permission required');
+                    }
                 }
             };
 
@@ -612,7 +723,7 @@
                             subtitleEl.className = 'subtitle-text empty';
                             subtitleEl.textContent = 'Waiting for speech...';
                         }
-                    }, 5000);
+                    }, 2000);
                     
                 } else if (interimTranscript) {
                     subtitleEl.textContent = interimTranscript;
