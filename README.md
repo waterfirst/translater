@@ -6,22 +6,25 @@
 
 ## 🌐 Live Demo
 
-**[👉 https://waterfirst.github.io/International-conference-helper/](https://waterfirst.github.io/International-conference-helper/)**
+**[👉 https://waterfirst.github.io/translater/](https://waterfirst.github.io/translater/)**
 
 ## ✨ Features
 
 | Feature | Description |
 |---------|-------------|
-| 🎤 **Speech Recognition** | Real-time speech-to-text in multiple languages |
+| 🎤 **Speech Recognition** | Real-time speech-to-text in 10 languages |
 | 🌍 **Translation** | Automatic translation to your preferred language |
 | 📺 **Live Subtitles** | Display subtitles over camera view |
 | 📷 **Camera Support** | Front/back camera with toggle option |
 | 💾 **Save Records** | Export translation log as text file |
 | 📱 **PWA Support** | Install as app on mobile devices |
+| ⚡ **Fast Recognition** | Quick 2-second response time for fast speech |
+| 🔒 **Permission Memory** | Remembers microphone permission (no repeated prompts) |
+| 📱 **Fully Responsive** | Optimized for mobile, tablet, and desktop screens |
 
-## 🗣️ Supported Languages
+## 🗣️ Supported Languages (10 Languages)
 
-### Recognition Languages
+### Recognition & Translation Languages
 - 🇺🇸 English
 - 🇰🇷 한국어 (Korean)
 - 🇯🇵 日本語 (Japanese)
@@ -29,9 +32,9 @@
 - 🇩🇪 Deutsch (German)
 - 🇫🇷 Français (French)
 - 🇪🇸 Español (Spanish)
-
-### Translation Languages
-- All of the above
+- 🇲🇾 Bahasa Melayu (Malaysian)
+- 🇮🇩 Bahasa Indonesia (Indonesian)
+- 🇳🇱 Nederlands (Dutch)
 
 ## 📱 How to Use
 
@@ -60,10 +63,12 @@
 
 ## ⚙️ Technical Details
 
-- **Speech Recognition**: Web Speech API
+- **Speech Recognition**: Web Speech API with maxAlternatives for improved accuracy
 - **Translation**: Google Translate API (free tier)
-- **Camera**: MediaDevices API
+- **Camera**: MediaDevices API with front/back camera support
 - **PWA**: Service Worker for offline capability
+- **Storage**: LocalStorage for permission persistence
+- **Responsive Design**: CSS Grid & Flexbox with 4 breakpoints (mobile, tablet, desktop, large desktop)
 
 ## ⚠️ Requirements
 
