@@ -584,6 +584,8 @@
         let recognition = null;
         let isRecognizing = false;
         let videoStream = null;
+        let interimTranslateTimer = null;
+        let lastInterimText = '';
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
@@ -656,8 +658,13 @@
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
-            recognition.maxAlternatives = 3;
+            recognition.maxAlternatives = 5;
             recognition.lang = document.getElementById('recognitionLang').value;
+
+            // More sensitive settings for better recognition
+            if (recognition.hasOwnProperty('maxResults')) {
+                recognition.maxResults = 5;
+            }
 
             recognition.onstart = () => {
                 isRecognizing = true;
@@ -700,34 +707,64 @@
                 let interimTranscript = '';
                 let finalTranscript = '';
 
+                // Get all results with confidence scores
                 for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    
-                    if (event.results[i].isFinal) {
+                    const result = event.results[i];
+                    // Use best alternative even with lower confidence
+                    const transcript = result[0].transcript;
+
+                    if (result.isFinal) {
                         finalTranscript += transcript;
                     } else {
                         interimTranscript += transcript;
                     }
                 }
 
+                const targetLang = document.getElementById('translateLang').value;
+
                 if (finalTranscript) {
+                    // Clear any pending interim translation
+                    if (interimTranslateTimer) {
+                        clearTimeout(interimTranslateTimer);
+                        interimTranslateTimer = null;
+                    }
+
                     subtitleEl.textContent = finalTranscript;
                     subtitleEl.className = 'subtitle-text final';
-                    
-                    const targetLang = document.getElementById('translateLang').value;
+
                     const translated = await translateText(finalTranscript, targetLang);
+
+                    // Show translated subtitle
+                    subtitleEl.textContent = translated;
                     addToTranscript(finalTranscript, translated);
-                    
+
                     setTimeout(() => {
-                        if (subtitleEl.textContent === finalTranscript) {
+                        if (subtitleEl.textContent === translated) {
                             subtitleEl.className = 'subtitle-text empty';
                             subtitleEl.textContent = 'Waiting for speech...';
                         }
                     }, 2000);
-                    
+
                 } else if (interimTranscript) {
+                    // Show interim text immediately
                     subtitleEl.textContent = interimTranscript;
                     subtitleEl.className = 'subtitle-text interim';
+
+                    // Translate interim results with debounce
+                    if (interimTranscript.length >= 3 && interimTranscript !== lastInterimText) {
+                        lastInterimText = interimTranscript;
+
+                        if (interimTranslateTimer) {
+                            clearTimeout(interimTranslateTimer);
+                        }
+
+                        interimTranslateTimer = setTimeout(async () => {
+                            const translated = await translateText(interimTranscript, targetLang);
+                            if (subtitleEl.className === 'subtitle-text interim') {
+                                subtitleEl.textContent = translated;
+                            }
+                        }, 300); // Translate after 300ms of no new interim results
+                    }
                 }
             };
 
